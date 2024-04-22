@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field } from "formik";
 import * as Yup from 'yup';
 import PrestamoInterface from "../interfaces/PrestamoInterface";
-import SelectComponent from "../components/SelectComponent";
 import obtenerTiposSistemas from "@/services/obtenerTiposSistemas";
 import obtenerTiposPrestamos from "@/services/obtenerTiposPrestamos";
 import obtenerPlazos from "@/services/obtenerPlazos";
@@ -19,6 +18,8 @@ const PrestamoForm = () => {
         montoPrestamo: 0
     };
 
+    const [ simularPrestamo, setSimularPrestamo] = useState(initialValues);
+
     // Validar entradas del formulario
     const validationSchema = Yup.object({
         tipoSistema: Yup.string().required('Required'),
@@ -28,7 +29,8 @@ const PrestamoForm = () => {
     })
 
     const onSubmit = (values: PrestamoInterface) => {
-        simularCuotaPrestamo(values);
+        // Simulación de prestamos
+        setSimularPrestamo(values);
     };
 
     // Use state para obtener los tipos de prestamos.
@@ -53,18 +55,13 @@ const PrestamoForm = () => {
         obtenerPlazos(setPlazoPrestamo)
     }, [])
 
-    // const prestamo: PrestamoInterface = {
-    //     tipoPrestamo: 'CONSUMO',
-    //     montoPrestamo: 1000000,
-    //     plazoPrestamo: 18,
-    //     tipoSistema: 'ALEMAN'
-    // }
-    // simularCuotaPrestamo(prestamo);
-
     // Se retorna el formulario.
     return(
         <Formik
             initialValues={initialValues}
+            validate={(values) => {
+                console.log('values: ', values);
+            }}
             validationSchema={validationSchema}
             onSubmit={onSubmit}
         >
@@ -78,9 +75,16 @@ const PrestamoForm = () => {
                             <label htmlFor="tipoSistema" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo Sistema</label>
                         </div>
                         <div className="flex items-center justify-between">
-                            <Field as='select' name='selectTipoSistema' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <Field 
+                                as='select' 
+                                id='selectTipoSistema'
+                                name='tipoSistema' 
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            >
                                 {tipoDeSistema.map((item, index) => {
-                                    return <option key={index} value={index}>{item}</option>
+                                    console.log(item);
+                                    
+                                    return <option key={index} value={item}>{item}</option>
                                 })}
                             </Field>
                         </div>
@@ -90,11 +94,15 @@ const PrestamoForm = () => {
                         <div>
                             <label htmlFor="tipoPrestamo" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo Prestamo</label>
                         </div>
-                        <Field as='select' name='selectTipoPrestamo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <Field 
+                            as='select' 
+                            id='selectTipoPrestamo'
+                            name='tipoPrestamo' 
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
                             {Object.entries(tipoDePrestamo).map((item) => {
                                 const descripcion = item[0];
-                                const ivaPorTipoPrestamo = item[1]
-                                return <option key={descripcion} value={ivaPorTipoPrestamo}>{descripcion}</option>
+                                return <option key={descripcion} value={descripcion}>{descripcion}</option>
                             })}
                         </Field>
                     </div>
@@ -103,9 +111,14 @@ const PrestamoForm = () => {
                         <div>
                             <label htmlFor="plazoPrestamo" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Plazo</label>
                         </div>
-                        <Field as='select' name='selectPlazoPrestamo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <Field
+                            as='select' 
+                            id='selectPlazoPrestamo'
+                            name='plazoPrestamo' 
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
                             {plazos.map((item, index) => {
-                                return <option key={index} value={index}>{item}</option>
+                                return <option key={index} value={item}>{item}</option>
                             })}
                         </Field>
                     </div>
@@ -115,18 +128,16 @@ const PrestamoForm = () => {
                             <label htmlFor="montoPrestamo" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monto prestamo</label>
                         </div>
                         <div className="flex items-center justify-between">
-                            <input 
-                                type='input' 
+                            <Field 
+                                type='text' 
                                 id='montoPrestamo' 
                                 name='montoPrestamo' 
                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                onChange={(e: any) => setMontoPrestamo(parseFloat(e.target.value))} 
-                                defaultValue={montoPrestamo}   
                             />
                         </div>
                     </div>
                     <div>
-                        <button type="submit" onClick={() => { console.log('Hola mundo')}} className="hover:bg-blue-400 group flex items-center rounded-md bg-blue-500 text-white text-sm font-medium pl-2 pr-3 py-2 shadow-sm">Simular</button>
+                        <button type="submit" onClick={() => { console.log("NOOOOOOOOOOOOOOOOOOOOOOOOOOOO")}} className="hover:bg-blue-400 group flex items-center rounded-md bg-blue-500 text-white text-sm font-medium pl-2 pr-3 py-2 shadow-sm">Simular</button>
                     </div>
                 </div>
             </Form>

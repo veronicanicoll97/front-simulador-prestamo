@@ -1,6 +1,4 @@
-import Image from "next/image";
-import PrestamoForm from "./pages/PrestamoForm";
-
+import PrestamoForm from "./forms/PrestamoForm";
 
 export default function Home() {
   return (
