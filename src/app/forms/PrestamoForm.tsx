@@ -8,6 +8,8 @@ import obtenerTiposSistemas from "@/services/obtenerTiposSistemas";
 import obtenerTiposPrestamos from "@/services/obtenerTiposPrestamos";
 import obtenerPlazos from "@/services/obtenerPlazos";
 import simularCuotaPrestamo from "@/services/simularCuotaPrestamo";
+import DetalleCuotaInterface from "../interfaces/DetalleCuotaInterface";
+import CuotaTableComponent from "../components/CuotaTableComponent";
 
 const PrestamoForm = () => {
     // Valores iniciales del formulario.
@@ -28,11 +30,6 @@ const PrestamoForm = () => {
         montoPrestamo: Yup.number().required('Required'),
     })
 
-    const onSubmit = (values: PrestamoInterface) => {
-        // Simulación de prestamos
-        setSimularPrestamo(values);
-    };
-
     // Use state para obtener los tipos de prestamos.
     const [tipoDePrestamo, setTipoPrestamo] = useState({'Seleccionar tipo de prestamo': 0});
     console.log(tipoDePrestamo);
@@ -47,6 +44,9 @@ const PrestamoForm = () => {
     const [montoPrestamo, setMontoPrestamo] = useState(0);
     console.log("Monto Prestamo: ", montoPrestamo);
     
+    const [detalleCuotas, setDetalleCuotas] = useState<Array<DetalleCuotaInterface>>([{
+        mes: 0, capital: 0, intereses: 0, montoDeCuota: 0, saldo: 0
+    }])
     
     // Use effect para setear el tipo de sistema
     useEffect(() => {
@@ -55,6 +55,16 @@ const PrestamoForm = () => {
         obtenerPlazos(setPlazoPrestamo)
     }, [])
 
+    const onSubmit = (values: PrestamoInterface) => {
+        // Simulación de prestamos
+        setSimularPrestamo(values);
+        simularCuotaPrestamo(
+            values,
+            setDetalleCuotas
+        )
+    };
+
+    console.log("detalles: ", detalleCuotas)
     // Se retorna el formulario.
     return(
         <Formik
@@ -66,45 +76,46 @@ const PrestamoForm = () => {
             onSubmit={onSubmit}
         >
             <Form>
+                <div>
+                    <p>Simulador de prestamos</p>
+                </div>
                 <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-                    <div>
-                        <p>Simulador de prestamos</p>
-                    </div>
-                    <div>
-                        <div className="flex items-center justify-between">
-                            <label htmlFor="tipoSistema" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo Sistema</label>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Field 
-                                as='select' 
-                                id='selectTipoSistema'
-                                name='tipoSistema' 
-                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            >
-                                {tipoDeSistema.map((item, index) => {
-                                    console.log(item);
-                                    
-                                    return <option key={index} value={item}>{item}</option>
-                                })}
-                            </Field>
-                        </div>
-                    </div>
-
-                    <div>
                         <div>
-                            <label htmlFor="tipoPrestamo" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo Prestamo</label>
+                            <div className="flex items-center justify-between">
+                                <label htmlFor="tipoSistema" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo Sistema</label>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <Field 
+                                    as='select' 
+                                    id='selectTipoSistema'
+                                    name='tipoSistema' 
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                >
+                                    {tipoDeSistema.map((item, index) => {
+                                        console.log(item);
+                                        
+                                        return <option key={index} value={item}>{item}</option>
+                                    })}
+                                </Field>
+                            </div>
                         </div>
-                        <Field 
-                            as='select' 
-                            id='selectTipoPrestamo'
-                            name='tipoPrestamo' 
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        >
-                            {Object.entries(tipoDePrestamo).map((item) => {
-                                const descripcion = item[0];
-                                return <option key={descripcion} value={descripcion}>{descripcion}</option>
-                            })}
-                        </Field>
+                        <div>
+                            <div className="flex items-center justify-between">
+                                <label htmlFor="tipoPrestamo" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo Prestamo</label>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <Field 
+                                    as='select' 
+                                    id='selectTipoPrestamo'
+                                    name='tipoPrestamo' 
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                >
+                                    {Object.entries(tipoDePrestamo).map((item) => {
+                                        const descripcion = item[0];
+                                        return <option key={descripcion} value={descripcion}>{descripcion}</option>
+                                    })}
+                                </Field>
+                            </div>
                     </div>
 
                     <div>
@@ -136,9 +147,12 @@ const PrestamoForm = () => {
                             />
                         </div>
                     </div>
-                    <div>
-                        <button type="submit" onClick={() => { console.log("NOOOOOOOOOOOOOOOOOOOOOOOOOOOO")}} className="hover:bg-blue-400 group flex items-center rounded-md bg-blue-500 text-white text-sm font-medium pl-2 pr-3 py-2 shadow-sm">Simular</button>
+                    <div className="flex justify-center items-center">
+                        <button type="submit" className="hover:bg-blue-400 group flex items-center rounded-md bg-blue-500 text-white text-sm font-medium pl-2 pr-3 py-2 shadow-sm">Simular</button>
                     </div>
+                    <CuotaTableComponent 
+                        cuotas={detalleCuotas}
+                    />
                 </div>
             </Form>
         </Formik>
